@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+.env
+data/iuxray/
+data/roco/
+data/processed/
+data/artifacts/
+checkpoints/
+logs/
+.pytest_cache/
