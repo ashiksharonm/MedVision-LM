@@ -27,9 +27,7 @@ The project uses the following datasets:
 
 ## Architecture
 
-![MedVision-LM Architecture](https://via.placeholder.com/800x400.png?text=MedVision-LM+Architecture)
-
-*(Architecture diagram placeholder)*
+![MedVision-LM Architecture](app/architecture_medVision_LM.png)
 
 ---
 
