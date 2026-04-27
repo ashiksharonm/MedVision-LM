@@ -1,0 +1,12 @@
+venv/
+__pycache__/
+.git/
+.env
+data/iuxray/
+data/roco/
+data/processed/
+checkpoints/
+logs/
+.pytest_cache/
+tests/
+notebooks/
