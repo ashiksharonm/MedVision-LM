@@ -4,30 +4,32 @@
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com)
 [![Transformers](https://img.shields.io/badge/HuggingFace-Transformers-orange.svg)](https://huggingface.co/docs/transformers/index)
 
-**MedVision-LM** is a production-grade multimodal AI assistant for medical image analysis. It leverages state-of-the-art vision-language models (VLMs) fine-tuned on real medical datasets to provide automated insights from medical scans.
+> **Status: experimental scaffold / work in progress.** This repo wires pretrained Hugging Face models behind a FastAPI service and Streamlit demo. It is **not** a validated clinical tool, no model here has been fine-tuned and evaluated on medical data, and no performance numbers are reported. Do not use it for medical decisions.
 
-## Features
+## What the code actually does
 
-- 📝 **Automated Image Captioning:** Generates descriptive clinical reports from chest X-rays using a fine-tuned BLIP model.
-- ❓ **Visual Question Answering (VQA):** Answers specific clinical questions about a scan (e.g., "Is there consolidation?").
-- 🔍 **Cross-Modal Retrieval:** Uses CLIP embeddings and FAISS to find and retrieve the most similar reference cases to a given input image.
-- 🔥 **Attention Visualization:** Highlights diagnostically relevant regions using GradCAM-style attention heatmaps.
-- 🚀 **Production-Ready API:** Served via a high-performance FastAPI back-end.
-- 🖥️ **Interactive Demo:** Streamlit-based UI for easy interactive evaluation.
+- **Captioning** (`src/models/blip_captioner.py`): wraps `Salesforce/blip-image-captioning-base`. A fine-tuning script exists (`src/training/train_blip_caption.py`) but has not been run against real radiology reports, so the default output is a generic image caption.
+- **VQA** (`src/models/blip_vqa.py`): wraps `Salesforce/blip-vqa-base`; `train_blip_vqa.py` is a template that expects a user-supplied `image_path, question, answer` CSV.
+- **Retrieval** (`src/models/clip_retriever.py`): CLIP (`openai/clip-vit-base-patch32`) embeddings with a FAISS index built by `src/training/build_retrieval_index.py`. Retrieval quality has not been measured.
+- **Attention heatmap** (`src/models/gradcam.py`): a placeholder. It draws a fixed Gaussian blob at the image center and does not use model gradients or attention, so it carries no diagnostic information.
+- **Metrics** (`src/utils/metrics.py`): `compute_cider_bleu` currently returns zeros (not implemented); `compute_recall_at_k` is an unvalidated helper.
+- **API / UI**: FastAPI routes for caption, VQA, retrieve and analyze, plus a Streamlit demo.
 
----
+## Data
 
-## Datasets
-The project uses the following datasets:
-*   [IU X-Ray](https://openi.nlm.nih.gov/) (Indiana Univ.): image-report pairs.
-*   [ROCO](https://github.com/razorx89/roco-dataset) (Radiology Objects in COntext): Large-scale VLM training dataset.
-*   [VQA-RAD](https://vqa-rad.github.io/): Medical visual question answering.
+- `data/download_iuxray.py` actually downloads a 1% subset of the **NIH Chest X-ray** dataset (`alkzar90/NIH-Chest-X-ray-dataset`) as a stand-in, and the captions it produces are dummy/placeholder text, not radiology reports.
+- `data/download_roco.py` is provided but ROCO has not been used for fine-tuning.
+- VQA-RAD is not integrated.
 
----
+## TODO
 
-## Architecture
-
-![MedVision-LM Architecture](app/architecture_medVision_LM.png)
+- [ ] Real IU X-Ray (image + report) ingestion, with patient-level train/val/test splits
+- [ ] Fine-tune BLIP captioning on real reports and evaluate with BLEU/CIDEr (implement `compute_cider_bleu`)
+- [ ] Build and evaluate the CLIP/FAISS retrieval index (Recall@K on held-out data)
+- [ ] Replace the placeholder heatmap with real Grad-CAM/attention on the vision encoder; validate against expert annotations
+- [ ] VQA fine-tuning on VQA-RAD and evaluation
+- [ ] Measure API latency on stated hardware
+- [ ] Clinical-safety review and disclaimers before any real-world use
 
 ---
 
